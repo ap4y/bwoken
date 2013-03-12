@@ -5,13 +5,27 @@ require 'stringio'
 require 'bwoken/build'
 
 describe Bwoken::Build do
+  before do
+    Bwoken.stub(:app_name => "FakeProject")
+  end
 
   describe '.app_dir', :stub_proj_path do
-    it "returns the app's name with the .app suffix" do
+    before do
       stub_proj_path
       subject.stub(:configuration_build_dir => "#{proj_path}/build/the_sdk")
-      Bwoken.stub(:app_name => "FakeProject")
-      subject.app_dir.should == "#{proj_path}/build/the_sdk/FakeProject.app"
+    end
+
+    context 'with custom app name' do
+      subject { described_class.new('foo') }
+      it "returns the app's name with the .app suffix" do
+        subject.app_dir.should == "#{proj_path}/build/the_sdk/foo.app"
+      end
+    end
+
+    context 'without custom app name' do
+      it "returns the app's name with the .app suffix" do
+        subject.app_dir.should == "#{proj_path}/build/the_sdk/FakeProject.app"
+      end
     end
   end
 

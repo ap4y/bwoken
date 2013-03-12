@@ -4,8 +4,12 @@ require 'bwoken/device'
 module Bwoken
   class Build
 
+    def initialize(app_name=nil)
+      @app_name = app_name || Bwoken.app_name
+    end
+
     def app_dir
-      File.join(configuration_build_dir, "#{Bwoken.app_name}.app")
+      File.join(configuration_build_dir, "#@app_name.app")
     end
 
     def build_path
@@ -13,7 +17,7 @@ module Bwoken
     end
 
     def scheme
-      Bwoken.app_name
+      @app_name
     end
 
     def configuration
