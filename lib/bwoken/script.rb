@@ -10,25 +10,27 @@ module Bwoken
   class Script
 
     attr_accessor :path
+    attr_accessor :app_name
 
     class << self
 
-      def run_all device_family
+      def run_all device_family, app_name=nil
         Simulator.device_family = device_family
 
         test_files(device_family).each do |javascript|
-          run(javascript)
+          run(javascript, app_name)
         end
       end
 
-      def run_one feature_name, device_family
+      def run_one feature_name, device_family, app_name=nil
         Simulator.device_family = device_family
-        run File.join(Bwoken.test_suite_path, device_family, "#{feature_name}.js")
+        run File.join(Bwoken.test_suite_path, device_family, "#{feature_name}.js"), app_name
       end
 
-      def run javascript_path
+      def run javascript_path, app_name
         script = new
         script.path = javascript_path
+        script.app_name = app_name
         script.run
       end
 
@@ -55,8 +57,8 @@ module Bwoken
       env_variables.map{|key,val| "-e #{key} #{val}"}.join(' ')
     end
 
-    def cmd
-      build = Bwoken::Build.new
+    def cmd(app_name)
+      build = Bwoken::Build.new(app_name)
       "#{File.expand_path('../../../bin', __FILE__)}/unix_instruments.sh \
         #{device_flag} \
         -D #{self.class.trace_file_path} \
@@ -82,7 +84,7 @@ module Bwoken
       make_results_path_dir
 
       exit_status = 0
-      Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
+      Open3.popen3(cmd(app_name)) do |stdin, stdout, stderr, wait_thr|
         exit_status = Bwoken.formatter.format stdout
       end
       raise ScriptFailedError.new('Test Script Failed') unless exit_status == 0

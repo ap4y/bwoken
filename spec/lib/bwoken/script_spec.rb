@@ -18,14 +18,24 @@ describe Bwoken::Script do
       Bwoken::Script.run_all 'foo'
     end
 
-    it "runs all scripts in the device_family's path" do
+    it "runs all scripts in the device_family's path with default target" do
       Bwoken::Simulator.stub(:device_family=)
       Bwoken::Script.stub(:run)
       Bwoken.stub(:test_suite_path)
       Bwoken::Script.stub(:test_files => %w(a b))
-      Bwoken::Script.should_receive(:run).with('a').once.ordered
-      Bwoken::Script.should_receive(:run).with('b').once.ordered
+      Bwoken::Script.should_receive(:run).with('a', nil).once.ordered
+      Bwoken::Script.should_receive(:run).with('b', nil).once.ordered
       Bwoken::Script.run_all 'foo'
+    end
+
+    it "runs all scripts in the device_family's path with custom target" do
+      Bwoken::Simulator.stub(:device_family=)
+      Bwoken::Script.stub(:run)
+      Bwoken.stub(:test_suite_path)
+      Bwoken::Script.stub(:test_files => %w(a b))
+      Bwoken::Script.should_receive(:run).with('a', 'bar').once.ordered
+      Bwoken::Script.should_receive(:run).with('b', 'bar').once.ordered
+      Bwoken::Script.run_all 'foo', 'bar'
     end
 
   end
@@ -39,12 +49,20 @@ describe Bwoken::Script do
       Bwoken::Script.run_one feature, 'ipad'
     end
 
-    it 'runs the one script' do
+    it 'runs the one script with default target' do
       Bwoken::Simulator.stub(:device_family=)
       Bwoken.stub(:test_suite_path => 'suite')
-      Bwoken::Script.should_receive(:run).with("suite/ipad/#{feature}.js").once
+      Bwoken::Script.should_receive(:run).with("suite/ipad/#{feature}.js", nil).once
       Bwoken::Script.run_one feature, 'ipad'
     end
+
+    it 'runs the one script with custom target' do
+      Bwoken::Simulator.stub(:device_family=)
+      Bwoken.stub(:test_suite_path => 'suite')
+      Bwoken::Script.should_receive(:run).with("suite/ipad/#{feature}.js", 'bar').once
+      Bwoken::Script.run_one feature, 'ipad', 'bar'
+    end
+
   end
 
   describe '.test_files' do
@@ -59,25 +77,27 @@ describe Bwoken::Script do
   describe '.run' do
 
     it 'instantiates a script object' do
-      script_double = double('script', :path= => nil, :run => nil)
+      script_double = double('script', :path= => nil, :app_name= => nil, :run => nil)
       Bwoken::Script.should_receive(:new).and_return(script_double)
-      Bwoken::Script.run ''
+      Bwoken::Script.run '', nil
     end
 
-    it 'sets the path' do
+    it 'sets the path and app_name' do
       script_double = double('script', :run => nil)
       script_double.should_receive(:path=)
+      script_double.should_receive(:app_name=)
       Bwoken::Script.stub(:new => script_double)
-      Bwoken::Script.run ''
+      Bwoken::Script.run '', ''
     end
 
     it 'calls run after configuring the path' do
       script_double = double('script', :run => nil)
       script_double.should_receive(:path=).once.ordered
+      script_double.should_receive(:app_name=).once.ordered
       script_double.should_receive(:run).once.ordered
 
       Bwoken::Script.should_receive(:new).and_return(script_double)
-      Bwoken::Script.run ''
+      Bwoken::Script.run '', nil
     end
   end
 
@@ -135,7 +155,7 @@ describe Bwoken::Script do
 
     shared_examples 'returns the correct unix_instruments command' do
       it 'matches the regexp' do
-        subject.cmd.should match regexp
+        subject.cmd(nil).should match regexp
       end
     end
 
