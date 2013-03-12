@@ -16,6 +16,9 @@ Make sure bwoken is <a href="#installation">properly installed</a>. Then, build 
 <pre><code># will build and run all of your tests
 $ rake
 
+# will run against specified app scheme:
+$ rake test[CustomScheme]
+
 # will run one file, relative to integration/coffeescript (note: no file extension)
 $ RUN=iphone/focused_test rake
 </code></pre>
