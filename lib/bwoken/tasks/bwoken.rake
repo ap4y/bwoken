@@ -64,8 +64,8 @@ CLOBBER.include('integration/tmp')
 
 
 desc 'Compile the workspace'
-task :compile do
-  exit_status = Bwoken::Build.new.compile
+task :compile, :app_name do |t, args|
+  exit_status = Bwoken::Build.new(args[:app_name]).compile
   raise unless exit_status == 0
 end
 
@@ -75,27 +75,29 @@ device_families = %w(iphone ipad)
 device_families.each do |device_family|
 
   namespace device_family do
-    task :test => [RESULTS_DIR, :coffeescript] do
+    task :test, [:app_name] => [RESULTS_DIR, :coffeescript] do |t, args|
       if ENV['RUN']
-        Bwoken::Script.run_one ENV['RUN'], device_family
+        Bwoken::Script.run_one ENV['RUN'], device_family, args[:app_name]
       else
-        Bwoken::Script.run_all device_family
+        Bwoken::Script.run_all device_family, args[:app_name]
       end
     end
   end
 
   desc "Run tests for #{device_family}"
-  task device_family => "#{device_family}:test"
+  task device_family, :app_name do |t, args|
+    task("#{device_family}:test").invoke(args[:app_name])
+  end
 
 end
 
 desc 'Run all tests without compiling first'
-task :test do
+task :test, :app_name do |t, args|
   if ENV['FAMILY']
-    Rake::Task[ENV['FAMILY']].invoke
+    Rake::Task[ENV['FAMILY']].invoke(args[:app_name])
   else
     device_families.each do |device_family|
-      Rake::Task[device_family].invoke
+      Rake::Task[device_family].invoke(args[:app_name])
     end
   end
 end
