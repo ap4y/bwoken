@@ -1,4 +1,5 @@
 require 'bwoken/formatter'
+require 'date'
 
 module Bwoken::XunitFormatter
 
