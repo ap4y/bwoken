@@ -14,8 +14,21 @@ describe Bwoken do
   end
 
   describe '#formatter' do
-    it 'returns Bwoken::ColorfulFormatter' do
-      subject.formatter.should be_kind_of(Bwoken::ColorfulFormatter)
+    context 'without formatter env variable' do
+      it 'returns Bwoken::ColorfulFormatter' do
+        subject.formatter.should be_kind_of(Bwoken::ColorfulFormatter)
+      end
+    end
+
+    context "with ENV['formatter'] = 'xunit'" do
+      before do
+        ENV['formatter'] = 'xunit'
+        subject.stub(:app_name => 'FakeProject')
+      end
+
+      it 'returns Bwoken::XunitFormatter for ' do
+        subject.formatter.should be_kind_of(Bwoken::XunitFormatter::Formatter)
+      end
     end
   end
 

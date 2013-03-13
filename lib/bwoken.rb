@@ -3,6 +3,7 @@ require 'fileutils'
 require 'bwoken/build'
 require 'bwoken/coffeescript'
 require 'bwoken/formatters/colorful_formatter'
+require 'bwoken/formatters/xunit_formatter'
 require 'bwoken/script'
 require 'bwoken/simulator'
 require 'bwoken/device'
@@ -23,7 +24,12 @@ module Bwoken
     end
 
     def formatter
-      @formatter ||= Bwoken::ColorfulFormatter.new
+      formatter_type = ENV['formatter'] || 'color'
+      if formatter_type == 'xunit'
+        @formatter = Bwoken::XunitFormatter::Formatter.new(File.join(results_path, "#{app_name}.xml"))
+      else
+        @formatter = Bwoken::ColorfulFormatter.new
+      end
     end
 
     def project_path
