@@ -12,14 +12,25 @@ describe Bwoken::Script do
   describe '.run_all' do
     it 'sets the device_family once' do
       Bwoken::Simulator.should_receive(:device_family=).with('foo').once
+      Bwoken::Simulator.stub(:app_name=)
       Bwoken::Script.stub(:run)
       Bwoken::Script.stub(:test_files => %w(a b))
       Bwoken.stub(:test_suite_path)
       Bwoken::Script.run_all 'foo'
     end
 
+    it 'sets the app_name once' do
+      Bwoken::Simulator.stub(:device_family=)
+      Bwoken::Simulator.should_receive(:app_name=).with('bar').once
+      Bwoken::Script.stub(:run)
+      Bwoken::Script.stub(:test_files => %w(a b))
+      Bwoken.stub(:test_suite_path)
+      Bwoken::Script.run_all 'foo', 'bar'
+    end
+
     it "runs all scripts in the device_family's path with default target" do
       Bwoken::Simulator.stub(:device_family=)
+      Bwoken::Simulator.stub(:app_name=)
       Bwoken::Script.stub(:run)
       Bwoken.stub(:test_suite_path)
       Bwoken::Script.stub(:test_files => %w(a b))
@@ -30,6 +41,7 @@ describe Bwoken::Script do
 
     it "runs all scripts in the device_family's path with custom target" do
       Bwoken::Simulator.stub(:device_family=)
+      Bwoken::Simulator.stub(:app_name=)
       Bwoken::Script.stub(:run)
       Bwoken.stub(:test_suite_path)
       Bwoken::Script.stub(:test_files => %w(a b))
@@ -44,13 +56,23 @@ describe Bwoken::Script do
     let(:feature) { 'foo' }
     it 'sets the simulator based on passed in device' do
       Bwoken::Simulator.should_receive(:device_family=).with('ipad').once
+      Bwoken::Simulator.stub(:app_name=)
       Bwoken.stub(:test_suite_path => 'suite')
       Bwoken::Script.stub(:run)
       Bwoken::Script.run_one feature, 'ipad'
     end
 
+    it 'sets app name' do
+      Bwoken::Simulator.stub(:device_family=)
+      Bwoken::Simulator.should_receive(:app_name=).with('foo').once
+      Bwoken.stub(:test_suite_path => 'suite')
+      Bwoken::Script.stub(:run)
+      Bwoken::Script.run_one feature, 'ipad', 'foo'
+    end
+
     it 'runs the one script with default target' do
       Bwoken::Simulator.stub(:device_family=)
+      Bwoken::Simulator.stub(:app_name=)
       Bwoken.stub(:test_suite_path => 'suite')
       Bwoken::Script.should_receive(:run).with("suite/ipad/#{feature}.js", nil).once
       Bwoken::Script.run_one feature, 'ipad'
@@ -58,6 +80,7 @@ describe Bwoken::Script do
 
     it 'runs the one script with custom target' do
       Bwoken::Simulator.stub(:device_family=)
+      Bwoken::Simulator.stub(:app_name=)
       Bwoken.stub(:test_suite_path => 'suite')
       Bwoken::Script.should_receive(:run).with("suite/ipad/#{feature}.js", 'bar').once
       Bwoken::Script.run_one feature, 'ipad', 'bar'

@@ -2,12 +2,16 @@ module Bwoken
   class Simulator
 
     def self.plist_buddy; '/usr/libexec/PlistBuddy'; end
-    def self.plist_file; "#{Bwoken::Build.new.app_dir}/Info.plist"; end
+    def self.plist_file; "#{Bwoken::Build.new(@@app_name).app_dir}/Info.plist"; end
 
     def self.device_family= device_family
       update_device_family_in_plist :delete_array
       update_device_family_in_plist :add_array
       update_device_family_in_plist :add_scalar, device_family
+    end
+
+    def self.app_name= app_name
+      @@app_name = app_name
     end
 
     def self.update_device_family_in_plist action, args = nil

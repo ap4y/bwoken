@@ -15,6 +15,7 @@ module Bwoken
     class << self
 
       def run_all device_family, app_name=nil
+        Simulator.app_name      = app_name
         Simulator.device_family = device_family
 
         test_files(device_family).each do |javascript|
@@ -23,6 +24,7 @@ module Bwoken
       end
 
       def run_one feature_name, device_family, app_name=nil
+        Simulator.app_name      = app_name
         Simulator.device_family = device_family
         run File.join(Bwoken.test_suite_path, device_family, "#{feature_name}.js"), app_name
       end
