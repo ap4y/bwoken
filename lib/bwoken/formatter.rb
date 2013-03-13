@@ -12,7 +12,7 @@ module Bwoken
 
       def on name, &block
         define_method "_on_#{name}_callback" do |*line|
-          block.call(*line)
+          self.instance_exec(*line, &block)
         end
       end
 
